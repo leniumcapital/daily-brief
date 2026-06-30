@@ -24,6 +24,20 @@ async def lifespan(app: FastAPI):
     scheduler = create_scheduler()
     scheduler.start()
     logger.info("Scheduler started")
+
+    # Populate dashboard on first boot
+    import asyncio
+
+    from app.services.ingestion import run_ingestion_cycle
+    from app.services.seed import seed_if_empty
+
+    async def bootstrap_content() -> None:
+        await run_ingestion_cycle("rss")
+        await seed_if_empty()
+
+    asyncio.create_task(bootstrap_content())
+    logger.info("Initial content bootstrap triggered")
+
     yield
     scheduler.shutdown()
     logger.info("Scheduler stopped")

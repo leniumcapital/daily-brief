@@ -20,6 +20,13 @@ async def health():
     return {"status": "ok"}
 
 
+@router.post("/refresh")
+async def refresh_feeds(_: None = Depends(verify_api_key)):
+    from app.services.ingestion import run_ingestion_cycle
+
+    return await run_ingestion_cycle("all")
+
+
 @router.get("/dashboard", response_model=DashboardResponse)
 async def get_dashboard(
     db: AsyncSession = Depends(get_db),

@@ -1,43 +1,56 @@
 # Category → ranked list of preferred sources (1 = highest).
-# Rankings are subjective and user-adjustable over time.
 
 finance_markets:
-  - Wall Street Journal
-  - Financial Times
   - Bloomberg
+  - BBC Business
+  - Financial Times
 
 technology_startups:
-  - The Information
   - TechCrunch
+  - The Verge
   - Ars Technica
 
 macro_policy:
-  - Financial Times
+  - BBC World
+  - NPR News
   - Reuters
-  - Associated Press
 
 general:
-  - Reuters
-  - Associated Press
-  - BBC News
+  - Hacker News
+  - BBC Top Stories
+  - NPR News
 
-# RSS feed URLs for legitimate headline/summary access (not full-article scraping)
 rss_feeds:
-  Wall Street Journal:
-    url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+  Bloomberg:
+    url: https://feeds.bloomberg.com/markets/news.rss
+    category: finance_markets
+  "BBC Business":
+    url: https://feeds.bbci.co.uk/news/business/rss.xml
     category: finance_markets
   Financial Times:
     url: https://www.ft.com/rss/home
     category: finance_markets
-  Bloomberg:
-    url: https://feeds.bloomberg.com/markets/news.rss
-    category: finance_markets
   TechCrunch:
     url: https://techcrunch.com/feed/
     category: technology_startups
-  Ars Technica:
+  "The Verge":
+    url: https://www.theverge.com/rss/index.xml
+    category: technology_startups
+  "Ars Technica":
     url: https://feeds.arstechnica.com/arstechnica/index
     category: technology_startups
+  "BBC World":
+    url: https://feeds.bbci.co.uk/news/world/rss.xml
+    category: macro_policy
+  "NPR News":
+    url: https://feeds.npr.org/1001/rss.xml
+    category: macro_policy
   Reuters:
     url: https://www.reutersagency.com/feed/
     category: macro_policy
+  "Hacker News":
+    url: https://hnrss.org/frontpage
+    category: general
+  "BBC Top Stories":
+    url: https://feeds.bbci.co.uk/news/rss.xml
+    category: general

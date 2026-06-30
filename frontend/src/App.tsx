@@ -6,6 +6,13 @@ export default function App() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
+    refetchInterval: (query) => {
+      const empty =
+        query.state.data &&
+        query.state.data.sections.length === 0 &&
+        !query.state.data.twitter_section;
+      return empty ? 5000 : false;
+    },
   });
 
   return (
@@ -26,6 +33,18 @@ export default function App() {
             Some sources may be outdated: {data.stale_sources.join(", ")}
           </div>
         )}
+
+        {data?.sections.length === 0 &&
+          !data?.twitter_section &&
+          !isLoading &&
+          !error && (
+            <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
+              <p className="text-gray-600">No articles yet — fetching from RSS feeds...</p>
+              <p className="text-sm text-gray-400 mt-2">
+                This can take a minute on first load. Refresh shortly.
+              </p>
+            </div>
+          )}
 
         {data?.sections.map((section) => (
           <Section key={section.category} section={section} />
