@@ -48,17 +48,18 @@ A personalized news curation agent that assembles a daily, dashboard-style brief
 - Docker & Docker Compose
 - API keys: `ANTHROPIC_API_KEY`, `X_API_BEARER_TOKEN` (paid tier), `NEWSAPI_KEY` (optional)
 
-### Run
+### Run (easiest)
 
 ```bash
 cp .env.example .env
-# Edit .env with your API keys
+# Edit .env — set DATABASE_URL for your local Postgres user
 
-docker compose up -d postgres redis
-cd backend && pip install -e . && uvicorn app.main:app --reload
-
-cd frontend && npm install && npm run dev
+./scripts/dev.sh
 ```
+
+This starts both the API (port 8000) and dashboard (port 5173).
+
+### Run manually
 
 Dashboard: http://localhost:5173  
 API docs: http://localhost:8000/docs

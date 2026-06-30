@@ -2,7 +2,7 @@ import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.config import get_settings
+from app.settings import get_settings
 from app.services.ingestion import run_ingestion_cycle
 
 logger = logging.getLogger(__name__)

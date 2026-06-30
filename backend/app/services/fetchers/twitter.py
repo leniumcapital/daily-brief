@@ -1,7 +1,7 @@
 import logging
 from datetime import UTC, datetime
 
-from app.config import get_settings
+from app.settings import get_settings
 from app.models import FetchStatus, SourceType
 
 logger = logging.getLogger(__name__)

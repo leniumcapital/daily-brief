@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import get_settings
+from app.settings import get_settings
 from app.database import get_db
 from app.schemas import DashboardResponse, SourceRankingUpdate, UserProfileUpdate
 from app.services.briefing import BriefingService

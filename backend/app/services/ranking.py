@@ -1,6 +1,6 @@
 import random
 
-from app.config import get_settings
+from app.settings import get_settings
 from app.models import NewsCategory
 
 settings = get_settings()

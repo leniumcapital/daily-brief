@@ -3,7 +3,7 @@ import logging
 
 from anthropic import AsyncAnthropic
 
-from app.config import get_settings
+from app.settings import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

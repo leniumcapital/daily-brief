@@ -1,7 +1,6 @@
 import enum
 from datetime import datetime
 
-from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -130,7 +129,7 @@ class Article(Base):
 
     ai_summary: Mapped[str | None] = mapped_column(Text)
     relevance_score: Mapped[float] = mapped_column(Float, default=0.0)
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(384))
+    embedding: Mapped[list[float] | None] = mapped_column(JSONB)
 
     raw_metadata: Mapped[dict] = mapped_column(JSONB, default=dict)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

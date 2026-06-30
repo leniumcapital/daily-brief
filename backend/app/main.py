@@ -5,7 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
-from app.config import get_settings
+from app.settings import get_settings
+from app.database import Base, engine
+from app.models import Article, CategorySourceRanking, Source, StoryCluster, UserProfile  # noqa: F401
 from app.services.scheduler import create_scheduler
 
 settings = get_settings()
@@ -15,6 +17,10 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database tables ready")
+
     scheduler = create_scheduler()
     scheduler.start()
     logger.info("Scheduler started")

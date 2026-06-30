@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 import httpx
 
-from app.config import get_settings
+from app.settings import get_settings
 from app.models import FetchStatus, NewsCategory, SourceType
 
 logger = logging.getLogger(__name__)
