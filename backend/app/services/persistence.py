@@ -23,12 +23,14 @@ async def get_or_create_source(
     source_type: SourceType,
     feed_url: str | None = None,
     fetch_status: FetchStatus = FetchStatus.OK,
+    last_error: str | None = None,
 ) -> Source:
     result = await db.execute(select(Source).where(Source.name == name))
     source = result.scalar_one_or_none()
     if source:
         source.last_fetched_at = datetime.now(tz=UTC)
         source.fetch_status = fetch_status
+        source.last_error = last_error
         if feed_url:
             source.feed_url = feed_url
         return source
@@ -39,6 +41,7 @@ async def get_or_create_source(
         feed_url=feed_url,
         last_fetched_at=datetime.now(tz=UTC),
         fetch_status=fetch_status,
+        last_error=last_error,
     )
     db.add(source)
     await db.flush()
@@ -95,12 +98,18 @@ async def save_items(
     items: list[dict],
     feed_url: str | None = None,
     fetch_status: FetchStatus = FetchStatus.OK,
+    last_error: str | None = None,
 ) -> int:
     """Persist fetched items. Returns count of newly inserted articles."""
     inserted = 0
     async with SessionLocal() as db:
         source = await get_or_create_source(
-            db, source_name, source_type, feed_url=feed_url, fetch_status=fetch_status
+            db,
+            source_name,
+            source_type,
+            feed_url=feed_url,
+            fetch_status=fetch_status,
+            last_error=last_error,
         )
         for item in items:
             if await upsert_article(db, source, item):

@@ -16,8 +16,8 @@ def create_scheduler() -> AsyncIOScheduler:
         run_ingestion_cycle,
         "interval",
         seconds=settings.rss_refresh_interval,
-        id="rss_ingestion",
-        kwargs={"stream": "rss"},
+        id="sources_ingestion",
+        kwargs={"stream": "sources"},
         replace_existing=True,
     )
     scheduler.add_job(

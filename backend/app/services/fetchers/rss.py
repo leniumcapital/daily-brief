@@ -1,10 +1,11 @@
+import asyncio
 import logging
-from datetime import UTC, datetime
+import re
+from html import unescape
 
 import feedparser
-import httpx
 
-from app.models import FetchStatus, NewsCategory, Source, SourceType
+from app.models import FetchStatus, NewsCategory, SourceType
 
 logger = logging.getLogger(__name__)
 
@@ -12,72 +13,62 @@ USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
-DEFAULT_HEADERS = {"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, text/xml, */*"}
+
+
+def strip_html(text: str) -> str:
+    clean = re.sub(r"<[^>]+>", " ", text or "")
+    return unescape(re.sub(r"\s+", " ", clean)).strip()
 
 
 class RSSFetcher:
-    """Fetch headlines and summaries from official RSS feeds."""
-
-    def __init__(self, client: httpx.AsyncClient | None = None):
-        self._client = client
+    """Fetch headlines via official RSS feeds (feedparser + browser User-Agent)."""
 
     async def fetch_feed(self, feed_url: str) -> list[dict]:
-        if self._client:
-            response = await self._client.get(feed_url, headers=DEFAULT_HEADERS, timeout=30.0, follow_redirects=True)
-            response.raise_for_status()
-            parsed = feedparser.parse(response.text)
-        else:
-            async with httpx.AsyncClient(headers=DEFAULT_HEADERS, follow_redirects=True) as client:
-                response = await client.get(feed_url, timeout=30.0)
-                response.raise_for_status()
-                parsed = feedparser.parse(response.text)
+        loop = asyncio.get_running_loop()
+        parsed = await loop.run_in_executor(
+            None, lambda: feedparser.parse(feed_url, agent=USER_AGENT)
+        )
 
-        if not parsed.entries:
-            # Fallback: feedparser can fetch directly with agent string
-            parsed = feedparser.parse(feed_url, agent=USER_AGENT)
+        if getattr(parsed, "bozo", False) and not parsed.entries:
+            raise ValueError(parsed.get("bozo_exception", "Invalid RSS feed"))
 
         items = []
-        for entry in parsed.entries:
+        for entry in parsed.entries[:25]:
+            headline = strip_html(entry.get("title", ""))
+            if not headline:
+                continue
             items.append(
                 {
                     "external_id": entry.get("id") or entry.get("link", ""),
-                    "headline": entry.get("title", "").strip(),
-                    "summary_snippet": entry.get("summary", "")[:500],
+                    "headline": headline,
+                    "summary_snippet": strip_html(entry.get("summary", ""))[:500],
                     "url": entry.get("link", ""),
                     "author": entry.get("author"),
                     "published_at": self._parse_date(entry),
+                    "source_type": SourceType.RSS,
                 }
             )
         return items
 
     @staticmethod
-    def _parse_date(entry: dict) -> datetime:
+    def _parse_date(entry: dict):
+        from datetime import UTC, datetime
+        from time import mktime
+
         for key in ("published_parsed", "updated_parsed"):
             parsed = entry.get(key)
             if parsed:
-                from time import mktime
-
                 return datetime.fromtimestamp(mktime(parsed), tz=UTC)
         return datetime.now(tz=UTC)
 
 
-async def refresh_rss_source(source: Source, category: NewsCategory) -> tuple[list[dict], FetchStatus]:
-    """Fetch RSS for a source; return items and status (OK or STALE on failure)."""
-    if not source.feed_url:
-        return [], FetchStatus.ERROR
-
+async def fetch_rss(url: str, category: NewsCategory) -> tuple[list[dict], FetchStatus, str | None]:
     fetcher = RSSFetcher()
     try:
-        items = await fetcher.fetch_feed(source.feed_url)
-        source.last_fetched_at = datetime.now(tz=UTC)
-        source.fetch_status = FetchStatus.OK
-        source.last_error = None
+        items = await fetcher.fetch_feed(url)
         for item in items:
             item["category"] = category
-            item["source_type"] = SourceType.RSS
-        return items, FetchStatus.OK
+        return items, FetchStatus.OK, None
     except Exception as exc:
-        logger.warning("RSS fetch failed for %s: %s", source.name, exc)
-        source.fetch_status = FetchStatus.STALE
-        source.last_error = str(exc)
-        return [], FetchStatus.STALE
+        logger.warning("RSS fetch failed for %s: %s", url, exc)
+        return [], FetchStatus.STALE, str(exc)

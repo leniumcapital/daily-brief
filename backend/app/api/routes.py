@@ -37,6 +37,31 @@ async def refresh_feeds(_: None = Depends(verify_api_key)):
     return await run_ingestion_cycle("all")
 
 
+@router.get("/sources/status")
+async def sources_status(_: None = Depends(verify_api_key)):
+    """Test connectivity to every configured news outlet."""
+    from app.config.source_rankings import get_all_sources, get_twitter_config
+    from app.services.source_connector import SourceConnector
+
+    connector = SourceConnector()
+    sources = get_all_sources()
+    results = []
+    for name, config in sources.items():
+        results.append(await connector.check_source(name, config))
+
+    connected = sum(1 for r in results if r["article_count"] > 0)
+    twitter_cfg = get_twitter_config()
+    return {
+        "total_sources": len(results),
+        "connected": connected,
+        "newsapi_configured": bool(settings.newsapi_key),
+        "guardian_configured": bool(settings.guardian_api_key),
+        "x_configured": bool(settings.x_api_bearer_token),
+        "twitter_accounts": twitter_cfg.get("accounts", []),
+        "sources": results,
+    }
+
+
 @router.get("/dashboard", response_model=DashboardResponse)
 async def get_dashboard(
     db: AsyncSession = Depends(get_db),

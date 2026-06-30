@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     x_api_bearer_token: str = ""
     newsapi_key: str = ""
+    guardian_api_key: str = ""
 
     api_key: str = "dev-key"
     environment: str = "development"

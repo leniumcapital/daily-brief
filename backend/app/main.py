@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     from app.services.seed import seed_if_empty
 
     async def bootstrap_content() -> None:
-        await run_ingestion_cycle("rss")
+        await run_ingestion_cycle("all")
         await seed_if_empty()
 
     asyncio.create_task(bootstrap_content())

@@ -41,12 +41,54 @@ A personalized news curation agent that assembles a daily, dashboard-style brief
 - **Serendipity slot** — ~10% of feed reserved for outside-interest stories
 - **Graceful degradation** — stale content shown with clear labels when sources fail
 
+## Connecting news outlets
+
+All outlets are configured in `backend/app/config/sources.yaml`. Each source uses **legitimate access paths only** — official RSS feeds and licensed APIs. Providers are tried in order until one succeeds.
+
+| Outlet | Primary API | Fallback |
+|--------|-------------|----------|
+| Bloomberg, WSJ, FT, CNBC | NewsAPI | RSS |
+| TechCrunch, Ars Technica, Wired | NewsAPI | RSS |
+| BBC (World & Business) | NewsAPI | RSS |
+| The Guardian | Guardian Open Platform | RSS |
+| NPR, Hacker News, AP | RSS | — |
+| X / Twitter | Official X API v2 | — |
+
+### 1. Add API keys to `.env`
+
+```bash
+cp .env.example .env
+```
+
+| Key | Where to get it | What it unlocks |
+|-----|-----------------|-----------------|
+| `NEWSAPI_KEY` | https://newsapi.org/register | Bloomberg, WSJ, FT, TechCrunch, BBC, etc. |
+| `GUARDIAN_API_KEY` | https://open-platform.theguardian.com/access/ | The Guardian |
+| `X_API_BEARER_TOKEN` | https://developer.x.com | X Tracker sidebar |
+| `ANTHROPIC_API_KEY` | https://console.anthropic.com | AI summaries |
+
+### 2. Test connections
+
+```bash
+curl -H "X-API-Key: dev-key" http://localhost:8000/api/v1/sources/status | python3 -m json.tool
+```
+
+Shows which outlets are connected and how many articles each returned.
+
+### 3. Pull live articles
+
+```bash
+curl -X POST -H "X-API-Key: dev-key" http://localhost:8000/api/v1/refresh
+```
+
+The scheduler also auto-refreshes every 15 minutes.
+
 ## Quick start
 
 ### Prerequisites
 
 - Docker & Docker Compose
-- API keys: `ANTHROPIC_API_KEY`, `X_API_BEARER_TOKEN` (paid tier), `NEWSAPI_KEY` (optional)
+- API keys: `NEWSAPI_KEY` (recommended), `GUARDIAN_API_KEY`, `X_API_BEARER_TOKEN`, `ANTHROPIC_API_KEY`
 
 ### Run (easiest)
 

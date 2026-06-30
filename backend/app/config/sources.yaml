@@ -1,0 +1,142 @@
+# Unified news source registry — legitimate access paths only (RSS + licensed APIs).
+# Providers are tried in order until one succeeds.
+
+category_rankings:
+  finance_markets:
+    - Bloomberg
+    - Wall Street Journal
+    - Financial Times
+    - CNBC
+  technology_startups:
+    - TechCrunch
+    - The Verge
+    - Ars Technica
+    - Wired
+  macro_policy:
+    - BBC World
+    - NPR News
+    - The Guardian
+    - Associated Press
+
+twitter:
+  accounts:
+    - elonmusk
+    - markets
+    - fintech
+    - a16z
+    - naval
+  keywords:
+    - fed rates
+    - venture capital
+    - AI startup
+
+sources:
+  Bloomberg:
+    category: finance_markets
+    providers:
+      - type: newsapi
+        source_id: bloomberg
+      - type: rss
+        url: https://feeds.bloomberg.com/markets/news.rss
+
+  "Wall Street Journal":
+    category: finance_markets
+    providers:
+      - type: newsapi
+        source_id: the-wall-street-journal
+      - type: rss
+        url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+
+  "Financial Times":
+    category: finance_markets
+    providers:
+      - type: newsapi
+        source_id: financial-times
+      - type: rss
+        url: https://www.ft.com/rss/home
+
+  CNBC:
+    category: finance_markets
+    providers:
+      - type: newsapi
+        source_id: cnbc
+      - type: rss
+        url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114
+
+  TechCrunch:
+    category: technology_startups
+    providers:
+      - type: newsapi
+        source_id: techcrunch
+      - type: rss
+        url: https://techcrunch.com/feed/
+
+  "The Verge":
+    category: technology_startups
+    providers:
+      - type: rss
+        url: https://www.theverge.com/rss/index.xml
+
+  "Ars Technica":
+    category: technology_startups
+    providers:
+      - type: newsapi
+        source_id: ars-technica
+      - type: rss
+        url: https://feeds.arstechnica.com/arstechnica/index
+
+  Wired:
+    category: technology_startups
+    providers:
+      - type: newsapi
+        source_id: wired
+      - type: rss
+        url: https://www.wired.com/feed/rss
+
+  "BBC World":
+    category: macro_policy
+    providers:
+      - type: newsapi
+        source_id: bbc-news
+      - type: rss
+        url: https://feeds.bbci.co.uk/news/world/rss.xml
+
+  "BBC Business":
+    category: finance_markets
+    providers:
+      - type: newsapi
+        source_id: bbc-news
+      - type: rss
+        url: https://feeds.bbci.co.uk/news/business/rss.xml
+
+  "NPR News":
+    category: macro_policy
+    providers:
+      - type: rss
+        url: https://feeds.npr.org/1001/rss.xml
+
+  "The Guardian":
+    category: macro_policy
+    providers:
+      - type: guardian
+        section: world
+      - type: rss
+        url: https://www.theguardian.com/world/rss
+
+  "Associated Press":
+    category: macro_policy
+    providers:
+      - type: rss
+        url: https://rsshub.app/apnews/topics/apf-topnews
+
+  "Hacker News":
+    category: general
+    providers:
+      - type: rss
+        url: https://hnrss.org/frontpage
+
+  "BBC Top Stories":
+    category: general
+    providers:
+      - type: rss
+        url: https://feeds.bbci.co.uk/news/rss.xml
