@@ -1,0 +1,21 @@
+---
+description: Push all changes to GitHub after every edit session
+alwaysApply: true
+---
+
+# Auto-push to GitHub
+
+Remote: https://github.com/leniumcapital/daily-brief.git
+
+After making any code, config, or docs changes in this project:
+
+1. Run `git status` and `git diff` to review what changed.
+2. Stage all relevant files (never commit `.env`, secrets, or `node_modules`).
+3. Commit with a clear message describing the why.
+4. Push to `origin main` immediately: `git push origin main`
+
+Do this at the end of every task without waiting for the user to ask again.
+
+If push is rejected, pull with rebase first (`git pull --rebase origin main`), resolve conflicts, then push.
+
+If git is not initialized, set up the repo and add the remote above before pushing.
