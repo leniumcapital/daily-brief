@@ -1,45 +1,56 @@
-import type { BriefingItem } from "./types";
+import type { BriefingItem } from "../types";
+import { formatRelativeTime } from "../lib/dashboard";
 
-const contentTypeBadge: Record<string, string> = {
-  reporting: "bg-blue-100 text-blue-800",
-  opinion: "bg-purple-100 text-purple-800",
-  analysis: "bg-indigo-100 text-indigo-800",
-  social: "bg-sky-100 text-sky-800",
+interface NewsCardProps {
+  item: BriefingItem;
+  variant?: "default" | "compact" | "featured";
+  accent?: "finance" | "startup" | "default";
+}
+
+const accentBorder = {
+  finance: "border-l-finance",
+  startup: "border-l-startup",
+  default: "border-l-accent",
 };
 
-export function NewsCard({ item }: { item: BriefingItem }) {
+export function NewsCard({ item, variant = "default", accent = "default" }: NewsCardProps) {
+  const isCompact = variant === "compact";
+  const isFeatured = variant === "featured";
+
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-gray-900 leading-snug">
-          <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-            {item.headline}
-          </a>
-        </h3>
-        <span className="shrink-0 text-xs font-medium text-gray-500">
-          {Math.round(item.relevance_score * 100)}%
+    <article
+      className={`group border-l-2 ${accentBorder[accent]} bg-white transition-all hover:bg-slate-50/80 ${
+        isFeatured ? "rounded-xl p-5 shadow-card" : isCompact ? "px-4 py-3" : "rounded-xl p-4"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2 text-xs text-slate-400">
+            <span className="font-medium text-slate-500">{item.source_name}</span>
+            <span>·</span>
+            <time>{formatRelativeTime(item.published_at)}</time>
+            {item.is_developing && (
+              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-700">Live</span>
+            )}
+          </div>
+          <h3
+            className={`font-semibold leading-snug text-ink group-hover:text-accent ${
+              isFeatured ? "text-lg" : isCompact ? "text-sm" : "text-base"
+            }`}
+          >
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              {item.headline}
+            </a>
+          </h3>
+          {!isCompact && (
+            <p className={`mt-2 text-slate-600 ${isFeatured ? "text-sm leading-relaxed" : "text-sm line-clamp-2"}`}>
+              {item.summary}
+            </p>
+          )}
+        </div>
+        <span className="shrink-0 rounded-lg bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+          {Math.round(item.relevance_score * 100)}
         </span>
-      </div>
-
-      <p className="mt-2 text-sm text-gray-600 leading-relaxed">{item.summary}</p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-        <span className="font-medium text-gray-700">{item.source_name}</span>
-        <span className={`rounded px-1.5 py-0.5 ${contentTypeBadge[item.content_type]}`}>
-          {item.content_type}
-        </span>
-        {item.is_developing && (
-          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-800">Developing</span>
-        )}
-        {item.is_serendipity && (
-          <span className="rounded bg-green-100 px-1.5 py-0.5 text-green-800">Worth a look</span>
-        )}
-        {item.fetch_status === "stale" && (
-          <span className="rounded bg-orange-100 px-1.5 py-0.5 text-orange-800">Possibly stale</span>
-        )}
-        <time className="ml-auto text-gray-400">
-          {new Date(item.published_at).toLocaleString()}
-        </time>
       </div>
     </article>
   );

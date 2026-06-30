@@ -29,6 +29,14 @@ SAMPLES = [
         "url": "https://techcrunch.com",
     },
     {
+        "source": "The Information",
+        "type": SourceType.RSS,
+        "category": NewsCategory.TECHNOLOGY_STARTUPS,
+        "headline": "Series B round values infra startup at $1.2B amid AI buildout",
+        "summary": "The company raised $180M to expand GPU cloud capacity, joining a wave of funding for infrastructure plays serving model training demand from mid-size AI labs.",
+        "url": "https://www.theinformation.com",
+    },
+    {
         "source": "Financial Times",
         "type": SourceType.RSS,
         "category": NewsCategory.MACRO_POLICY,

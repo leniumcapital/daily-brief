@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/types.ts","./src/components/financenews.tsx","./src/components/header.tsx","./src/components/marketspanel.tsx","./src/components/newscard.tsx","./src/components/startupfunding.tsx","./src/components/twittertracker.tsx","./src/lib/dashboard.ts"],"version":"5.6.3"}

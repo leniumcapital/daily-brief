@@ -26,3 +26,22 @@ export interface Dashboard {
   twitter_section: BriefingSection | null;
   stale_sources: string[];
 }
+
+export interface MarketPoint {
+  time: string;
+  value: number;
+}
+
+export interface MarketTicker {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePct: number;
+  history: MarketPoint[];
+}
+
+export interface MarketsResponse {
+  tickers: MarketTicker[];
+  updated_at: string;
+}

@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchDashboard } from "./api";
-import { Section } from "./components/Section";
+import { fetchDashboard, fetchMarkets } from "./api";
+import { getSection, getTwitterItems } from "./lib/dashboard";
+import { Header } from "./components/Header";
+import { TwitterTracker } from "./components/TwitterTracker";
+import { FinanceNews } from "./components/FinanceNews";
+import { MarketsPanel } from "./components/MarketsPanel";
+import { StartupFunding } from "./components/StartupFunding";
 
 export default function App() {
-  const { data, isLoading, error } = useQuery({
+  const dashboard = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
     refetchInterval: (query) => {
@@ -11,52 +16,53 @@ export default function App() {
         query.state.data &&
         query.state.data.sections.length === 0 &&
         !query.state.data.twitter_section;
-      return empty ? 5000 : false;
+      return empty ? 5000 : 60000;
     },
   });
 
+  const markets = useQuery({
+    queryKey: ["markets"],
+    queryFn: fetchMarkets,
+    refetchInterval: 60000,
+  });
+
+  const financeItems = getSection(dashboard.data, "finance_markets");
+  const startupItems = getSection(dashboard.data, "technology_startups");
+  const twitterItems = getTwitterItems(dashboard.data);
+
   return (
-    <div className="min-h-screen">
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">Daily Brief</h1>
-          <p className="text-sm text-gray-500">Your personalized news dashboard</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-surface">
+      <Header
+        lastUpdated={dashboard.data?.generated_at}
+        staleSources={dashboard.data?.stale_sources}
+      />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        {isLoading && <p className="text-gray-500">Loading your briefing...</p>}
-        {error && <p className="text-red-600">Failed to load briefing. Is the backend running?</p>}
-
-        {data?.stale_sources && data.stale_sources.length > 0 && (
-          <div className="mb-6 rounded-lg bg-orange-50 border border-orange-200 p-3 text-sm text-orange-800">
-            Some sources may be outdated: {data.stale_sources.join(", ")}
-          </div>
-        )}
-
-        {data?.sections.length === 0 &&
-          !data?.twitter_section &&
-          !isLoading &&
-          !error && (
-            <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-              <p className="text-gray-600">No articles yet — fetching from RSS feeds...</p>
-              <p className="text-sm text-gray-400 mt-2">
-                This can take a minute on first load. Refresh shortly.
-              </p>
-            </div>
-          )}
-
-        {data?.sections.map((section) => (
-          <Section key={section.category} section={section} />
-        ))}
-
-        {data?.twitter_section && <Section section={data.twitter_section} />}
-
-        {data && (
-          <p className="text-xs text-gray-400 text-center mt-8">
-            Last updated {new Date(data.generated_at).toLocaleString()}
+      {dashboard.error && (
+        <div className="mx-auto max-w-[1600px] px-6 pt-4">
+          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Could not reach the API — make sure the backend is running on port 8000.
           </p>
-        )}
+        </div>
+      )}
+
+      <main className="mx-auto grid max-w-[1600px] grid-cols-1 gap-5 px-6 py-6 lg:grid-cols-[320px_1fr]">
+        {/* Left: Twitter tracker */}
+        <div className="lg:sticky lg:top-[73px] lg:h-[calc(100vh-97px)]">
+          <TwitterTracker items={twitterItems} isLoading={dashboard.isLoading} />
+        </div>
+
+        {/* Right: Finance, Markets, Startups */}
+        <div className="flex min-w-0 flex-col gap-5">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <FinanceNews items={financeItems} isLoading={dashboard.isLoading} />
+            <MarketsPanel
+              tickers={markets.data?.tickers ?? []}
+              isLoading={markets.isLoading}
+            />
+          </div>
+
+          <StartupFunding items={startupItems} isLoading={dashboard.isLoading} />
+        </div>
       </main>
     </div>
   );

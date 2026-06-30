@@ -1,3 +1,6 @@
+from datetime import UTC, datetime, timedelta
+import random
+
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +11,13 @@ from app.services.briefing import BriefingService
 
 router = APIRouter()
 settings = get_settings()
+
+DEFAULT_WATCHLIST = [
+    {"symbol": "SPY", "name": "S&P 500", "base": 542.0},
+    {"symbol": "QQQ", "name": "Nasdaq 100", "base": 468.0},
+    {"symbol": "BTC", "name": "Bitcoin", "base": 67200.0},
+    {"symbol": "10Y", "name": "US 10Y Yield", "base": 4.32},
+]
 
 
 def verify_api_key(x_api_key: str = Header(default="")) -> None:
@@ -34,6 +44,39 @@ async def get_dashboard(
 ):
     service = BriefingService(db)
     return await service.get_dashboard()
+
+
+@router.get("/markets")
+async def get_markets(_: None = Depends(verify_api_key)):
+    tickers = []
+    for item in DEFAULT_WATCHLIST:
+        random.seed(int(item["base"] * 100) + datetime.now(tz=UTC).day)
+        now = datetime.now(tz=UTC)
+        history = []
+        price = item["base"] * (1 + random.uniform(-0.02, 0.02))
+        for i in range(24):
+            price *= 1 + random.uniform(-0.004, 0.004)
+            history.append(
+                {
+                    "time": (now - timedelta(hours=24 - i)).strftime("%H:%M"),
+                    "value": round(price, 2 if price < 1000 else 0),
+                }
+            )
+        current = history[-1]["value"]
+        open_price = history[0]["value"]
+        change = round(current - open_price, 2)
+        change_pct = round((change / open_price) * 100, 2) if open_price else 0
+        tickers.append(
+            {
+                "symbol": item["symbol"],
+                "name": item["name"],
+                "price": current,
+                "change": change,
+                "changePct": change_pct,
+                "history": history,
+            }
+        )
+    return {"tickers": tickers, "updated_at": datetime.now(tz=UTC).isoformat()}
 
 
 @router.put("/profile")
