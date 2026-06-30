@@ -1,5 +1,6 @@
 import type { BriefingItem } from "../types";
-import { NewsCard } from "./NewsCard";
+import { formatRelativeTime } from "../lib/dashboard";
+import { Panel } from "./Panel";
 
 interface StartupFundingProps {
   items: BriefingItem[];
@@ -8,32 +9,54 @@ interface StartupFundingProps {
 
 export function StartupFunding({ items, isLoading }: StartupFundingProps) {
   return (
-    <section className="card overflow-hidden">
-      <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-startup" />
-          <h2 className="section-title text-startup">Startup & Funding</h2>
-        </div>
-        <span className="rounded-full bg-startup/10 px-3 py-1 text-xs font-semibold text-startup">
+    <Panel
+      title="Startup & Funding"
+      accent="startup"
+      trailing={
+        <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-startup ring-1 ring-violet-100">
           VC · Rounds · Tech
         </span>
-      </header>
+      }
+    >
+      <div className="grid gap-0 sm:grid-cols-2 lg:grid-cols-3">
+        {isLoading &&
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse border-b border-r border-slate-100 bg-slate-50" />
+          ))}
 
-      <div className="grid gap-0 md:grid-cols-2 lg:grid-cols-3">
-        {isLoading && (
-          <p className="col-span-full p-6 text-sm text-slate-400">Loading startup news...</p>
-        )}
         {!isLoading && items.length === 0 && (
-          <p className="col-span-full p-6 text-sm text-slate-500">
-            No startup funding news yet — check back after the next refresh.
+          <p className="col-span-full p-8 text-center text-sm text-slate-500">
+            No startup funding news yet.
           </p>
         )}
+
         {items.map((item) => (
-          <div key={item.id} className="border-b border-r border-slate-100 md:[&:nth-child(3n)]:border-r-0">
-            <NewsCard item={item} accent="startup" />
-          </div>
+          <article
+            key={item.id}
+            className="border-b border-r border-slate-100 p-5 transition-colors hover:bg-violet-50/30 lg:[&:nth-child(3n)]:border-r-0"
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500">
+                {item.source_name} · {formatRelativeTime(item.published_at)}
+              </span>
+              <span className="rounded-md bg-violet-50 px-2 py-0.5 text-xs font-bold text-startup">
+                {Math.round(item.relevance_score * 100)}
+              </span>
+            </div>
+            <h3 className="font-bold leading-snug text-ink">
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-startup"
+              >
+                {item.headline}
+              </a>
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 line-clamp-3">{item.summary}</p>
+          </article>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

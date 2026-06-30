@@ -8,19 +8,21 @@
   html {
     font-family: "Plus Jakarta Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-surface text-ink antialiased;
+    @apply bg-[#f4f6f9] text-ink;
+  }
+
+  a {
+    @apply transition-colors duration-150;
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-slate-200/80 bg-white shadow-card;
-  }
-
-  .section-title {
-    @apply text-sm font-semibold uppercase tracking-wider text-slate-500;
+    @apply rounded-2xl border border-slate-200/90 bg-white;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   }
 }
