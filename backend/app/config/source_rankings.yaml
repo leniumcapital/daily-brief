@@ -1,0 +1,43 @@
+# Category → ranked list of preferred sources (1 = highest).
+# Rankings are subjective and user-adjustable over time.
+
+finance_markets:
+  - Wall Street Journal
+  - Financial Times
+  - Bloomberg
+
+technology_startups:
+  - The Information
+  - TechCrunch
+  - Ars Technica
+
+macro_policy:
+  - Financial Times
+  - Reuters
+  - Associated Press
+
+general:
+  - Reuters
+  - Associated Press
+  - BBC News
+
+# RSS feed URLs for legitimate headline/summary access (not full-article scraping)
+rss_feeds:
+  Wall Street Journal:
+    url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+    category: finance_markets
+  Financial Times:
+    url: https://www.ft.com/rss/home
+    category: finance_markets
+  Bloomberg:
+    url: https://feeds.bloomberg.com/markets/news.rss
+    category: finance_markets
+  TechCrunch:
+    url: https://techcrunch.com/feed/
+    category: technology_startups
+  Ars Technica:
+    url: https://feeds.arstechnica.com/arstechnica/index
+    category: technology_startups
+  Reuters:
+    url: https://www.reutersagency.com/feed/
+    category: macro_policy
